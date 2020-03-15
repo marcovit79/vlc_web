@@ -195,6 +195,8 @@ function get<T = any>(options: http.RequestOptions): Promise<T> {
           reject(err);
         }
       });
+    }).on('error', (err) => {
+      reject(err);
     });
   });
 }
@@ -297,6 +299,9 @@ export class VLC extends EventEmitter {
       headers: {
         Authorization: this._authorization
       }
+    })
+    .catch( err => {
+      console.trace( "ERROR _sendCommand", err);
     });
   }
 
