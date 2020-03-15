@@ -3,6 +3,7 @@ import { Observable, timer, forkJoin } from 'rxjs';
 import { map, concatMap } from 'rxjs/operators';
 
 import { ApiService } from '../../generated/player-api/services'
+import { StrictHttpResponse } from '../../generated/player-api/strict-http-response'
 
 import { PlaylistFolder } from '../../model/PlayListFolder';
 import { PlayerInfo } from '../../model/PlayerInfo';
@@ -86,6 +87,9 @@ export class FullPlayerService implements OnInit {
   private getStatus(): Observable<PlayerInfo> {
       return this.client.playerControllerGetStatus$Response().pipe(
           map( (resp) => {
+              if( resp.status != 200 ) {
+                console.trace("ERROR getStatus", resp );
+              }
               let status = JSON.parse( resp.body as unknown as string )  as PlayerInfo;
               return status;
           })
@@ -93,14 +97,14 @@ export class FullPlayerService implements OnInit {
   }
 
   private collectFolders(): Observable<any> {
-      return this.fromGenerated2StringArray( this.client.playerControllerListPlaylists() )
+      return this.fromGenerated2StringArray( this.client.playerControllerListPlaylists$Response() )
           .pipe(
               concatMap( playlistsFoldersNames => {
               
                   let allFoldersObservables = playlistsFoldersNames.map( (folderName: string) => {
                       
                       return this.fromGenerated2StringArray( 
-                              this.client.playerControllerGetPlaylistContent({ playlist: folderName }) 
+                              this.client.playerControllerGetPlaylistContent$Response({ playlist: folderName }) 
                           )
                           .pipe(
                               map( ( folderContent: string[] ) => {
@@ -118,10 +122,16 @@ export class FullPlayerService implements OnInit {
       );
   } 
 
-  private fromGenerated2StringArray( svcCall: Observable<void> ): Observable<string[]> {
+  private fromGenerated2StringArray( svcCall: Observable<StrictHttpResponse<void>> ): Observable<string[]> {
       
-      return (svcCall as unknown as Observable<string>).pipe(
-          map( str => JSON.parse( str ) as string[] )
+      return svcCall.pipe(
+          map( resp => { 
+            if( resp.status != 200 ) {
+              console.trace( "ERROR", resp);
+            }
+            let result = JSON.parse( resp.body as unknown as string ) as string[];
+            return result; 
+          })
       );
   }
   

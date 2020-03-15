@@ -26,6 +26,7 @@
     "@nestjs/core": "^6.10.14",
     "@nestjs/platform-express": "^6.10.14",
     "@nestjs/platform-socket.io": "^6.11.11",
+    "@nestjs/serve-static": "^2.1.0",
     "@nestjs/swagger": "^4.3.2",
     "@nestjs/websockets": "^6.11.11",
     "cloudcmd": "^14.3.4",

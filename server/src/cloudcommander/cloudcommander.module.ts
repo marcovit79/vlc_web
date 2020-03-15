@@ -29,7 +29,7 @@ export class CloudCommanderModule implements NestModule  {
         private serverHolder: SocketIoServerHolder,
         private readonly configService: ConfigService
     ) { 
-        this.cloudcommanderConfig =  { ... cloud_commander_base_config, root: configService.get<String>('fs.root') }
+        this.cloudcommanderConfig =  { ... cloud_commander_base_config, root: configService.get<String>('fs.cloudcmd_root') }
     }
 
     configure(consumer: MiddlewareConsumer) {

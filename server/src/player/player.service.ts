@@ -47,7 +47,7 @@ export class PlayerService {
       changeEvents: true
     });
 
-    var playlistsPath = this.configService.get<string>('fs.root');
+    var playlistsPath = this.configService.get<string>('fs.vlc_root');
     if( ! playlistsPath.endsWith('/') ) {
       playlistsPath += '/'
     }
