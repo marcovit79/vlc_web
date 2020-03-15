@@ -1,0 +1,29 @@
+<!--
+<mat-grid-list cols="2" >
+  <mat-grid-tile>
+    -->
+<div class="full-player" >
+  <div class="folders-div">
+    <playlists-folder [playlists]="playlists" (selected)="doPlaylistSelected($event)"></playlists-folder>
+  </div>
+  <div class="player-div">
+    <vlc-player [fullStatus]="playerStatus"
+                (play)="play()"
+                (stop)="stop()"
+                (pause)="pause()"
+                (resume)="resume()"
+                (volume)="setVolume($event)"
+                (seekTo)="seekTo($event)"
+                (track)="changeTrack($event)"
+    ></vlc-player>
+  </div>
+</div>
+
+  <!--
+  </mat-grid-tile>
+  <mat-grid-tile>
+    sssssss
+  </mat-grid-tile>
+</mat-grid-list>
+-->
+  

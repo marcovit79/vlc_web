@@ -1,0 +1,30 @@
+<mat-accordion>
+    <mat-expansion-panel *ngFor="let pl of playlists" 
+      (opened)="onFolderOpened(pl)"
+      (closed)="onFolderClosed(pl)"
+      [expanded]="isExpanded(pl)"
+    >
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <span>{{ pl.name }}</span> 
+          <span class="header-enqueue-container" >
+            <button class="header-enqueue" 
+                    mat-button 
+                    (click)="playlistSelected(pl)"
+                    click-stop-propagation 
+            >
+              <mat-icon>queue</mat-icon>
+            </button>
+          </span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-action-row>
+        <button mat-button (click)="playlistSelected(pl)" ><mat-icon>queue</mat-icon></button>
+      </mat-action-row>
+
+      <mat-list>
+        <mat-list-item *ngFor="let f of pl.files">{{f}}</mat-list-item>
+      </mat-list>
+    
+    </mat-expansion-panel>
+  </mat-accordion>

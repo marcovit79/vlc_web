@@ -1,0 +1,75 @@
+<mat-card class="current-track-card">
+  <mat-card-header>
+    <mat-card-title>
+      {{ fullStatus && fullStatus.currentPlaylist ? fullStatus.currentPlaylist : 'Nessuna playlist caricata' }}
+    </mat-card-title>
+    <mat-card-subtitle>
+      <span class="subtitle-nostopped" *ngIf="fullStatus != null && fullStatus.currentTrack != null">
+        <span class="track-name">{{ fullStatus.currentTrack.name }}</span> 
+        <span class="track-duration">{{ fullStatus.currentTrack.duration | duration}}</span>
+        <span class="track-current-time">{{ fullStatus.currentTrackTime | duration}}</span>
+      </span>
+      <span class="subtitle-stopped" *ngIf="fullStatus == null || fullStatus.currentTrack == null">Stopped</span>
+    </mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+    <div>
+      <div class="button-bar" >
+        <button mat-flat-button [disabled]="isPlayDisabled()" (click)="playClicked()" >
+          <mat-icon>play_arrow</mat-icon>
+        </button>
+        <button mat-flat-button [disabled]="isStopDisabled()" (click)="stopClicked()" >
+          <mat-icon>stop</mat-icon>
+        </button>
+        <button mat-flat-button [disabled]="isPauseDisabled()" (click)="pauseClicked()" >
+          <mat-icon>pause</mat-icon>
+        </button>
+      </div>
+
+      <div class="position-container" *ngIf="fullStatus != null && fullStatus.currentTrack != null" >
+        <mat-label>Position</mat-label>
+        <mat-slider class="volume" 
+                  min="0" [max]="fullStatus.currentTrack.duration" step="1" 
+                  [value]="fullStatus.currentTrackTime" 
+                  (change)="positionChanged($event.value)"
+        ></mat-slider>
+      </div>
+
+      <div class="volume-container" *ngIf="fullStatus != null" >
+        <mat-label>Volume</mat-label>
+        <mat-slider class="volume" 
+                  min="0" max="255" step="1" 
+                  [value]="fullStatus.volume" 
+                  (change)="volumeChanged($event.value)"
+        ></mat-slider>
+      </div>
+
+    </div>
+  </mat-card-content>
+  
+</mat-card>
+
+
+
+<mat-expansion-panel class="tracks">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      Tracks
+    </mat-panel-title>
+  </mat-expansion-panel-header>
+  <mat-action-list *ngIf="fullStatus != null" >
+    <button *ngFor="let track of fullStatus.tracks" 
+            mat-list-item
+            class="track" 
+            (click)="goToTrack( track )"
+            [disabled]="isCurrentTrack( track )"
+    >
+      <span class="track-name" >{{ track.name }}</span>
+      <span class="duration-container">
+        <mat-chip class="duration">{{ track.duration | duration }}</mat-chip>   
+      </span> 
+    </button>
+  </mat-action-list>
+</mat-expansion-panel>
+

@@ -1,0 +1,24 @@
+
+@media screen and (min-width: 992px) {
+
+  .full-player {
+    display: flex;
+    background-color: #282727;
+  
+    min-width: 100vw;
+    min-height: 100vh;
+    
+    div {
+        padding: 5pt;
+    }
+  }
+  
+}
+
+@media screen and (max-width: 992px) {
+
+  .folders-div {
+    margin-bottom: 10px;
+  }
+
+}
