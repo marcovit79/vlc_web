@@ -17,6 +17,12 @@ button {
   margin-right: 1px;
 }
 
+.loop_container {
+  > span {
+    display: block;
+  }
+}
+
 .track > div {
     justify-content: space-between;
 }

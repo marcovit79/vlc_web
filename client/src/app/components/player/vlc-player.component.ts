@@ -35,6 +35,9 @@ export class VlcPlayerComponent {
 
     @Output()
     track: EventEmitter<Track> = new EventEmitter();
+
+    @Output()
+    loop: EventEmitter<boolean> = new EventEmitter();
     
     isCurrentTrack( track: Track ) {
       return (
@@ -89,6 +92,9 @@ export class VlcPlayerComponent {
       this.track.emit( track );
     }
 
+    loopNewValue( value: boolean ) {
+      this.loop.emit( value );
+    }
 
 }
   

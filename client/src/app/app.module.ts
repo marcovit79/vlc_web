@@ -11,6 +11,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { HttpClientModule } from '@angular/common/http';
 import { ApiModule } from './generated/player-api/api.module';
@@ -51,6 +52,7 @@ import { FullPlayerService } from './containers/full-player/full-player.service'
     MatCardModule,
     MatSliderModule,
     MatFormFieldModule,
+    MatSlideToggleModule,
 
     ApiModule
   ],

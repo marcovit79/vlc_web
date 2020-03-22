@@ -56,23 +56,30 @@ export class FullPlayerService implements OnInit {
 
 
   setVolume( v: number): void {
-    this.client.playerControllerAction( { body: { action: "set", volume: v, track: null, seekTo: null }} )
+    this.client.playerControllerAction( { body: { action: "set", volume: v, track: null, seekTo: null, loop: null }} )
         .subscribe( resp => {
           console.log("setVolume( " + v + " ) => ", resp );
         });
   }
 
   seekTo( timeSec: number ): void {
-    this.client.playerControllerAction( { body: { action: "set", volume: null, track: null, seekTo: timeSec }} )
+    this.client.playerControllerAction( { body: { action: "set", volume: null, track: null, seekTo: timeSec, loop: null }} )
         .subscribe( resp => {
           console.log("seekTo( " + timeSec + " ) => ", resp );
         });
   } 
 
   changeTrack( t: Track ): void {
-    this.client.playerControllerAction( { body: { action: "set", volume: null, track: t.id, seekTo: null }} )
+    this.client.playerControllerAction( { body: { action: "set", volume: null, track: t.id, seekTo: null, loop: null }} )
         .subscribe( resp => {
           console.log("changeTrack( " + t.id + " ) => ", resp );
+        });
+  }
+
+  setLoop( l: boolean ): void {
+    this.client.playerControllerAction( { body: { action: "set", volume: null, track: null, seekTo: null, loop: l }} )
+        .subscribe( resp => {
+          console.log("setLoop( " + l + " ) => ", resp );
         });
   }
 

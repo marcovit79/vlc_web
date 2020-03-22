@@ -61,5 +61,9 @@ export class FullPlayerComponent implements OnInit {
     seekTo( timeSec: number ): void {
       this.svc.seekTo( timeSec );
     }
+
+    changeLoopActivation( l: boolean ): void {
+      this.svc.setLoop( l );
+    }
 }
   

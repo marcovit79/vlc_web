@@ -30,6 +30,9 @@ export class SetActionDto extends BaseActionDto {
 
   @ApiProperty()
   seekTo: number
+
+  @ApiProperty()
+  loop: boolean
 }
 
 
@@ -93,6 +96,12 @@ export class PlayerController {
       }
       if( p.seekTo != null ) {
         this.svc.seekTo( p.seekTo );
+      }
+      if( p.seekTo != null ) {
+        this.svc.seekTo( p.seekTo );
+      }
+      if( p.loop != null ) {
+        this.svc.setLoop( p.loop );
       }
     }
 

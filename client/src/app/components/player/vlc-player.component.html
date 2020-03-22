@@ -25,6 +25,14 @@
         <button mat-flat-button [disabled]="isPauseDisabled()" (click)="pauseClicked()" >
           <mat-icon>pause</mat-icon>
         </button>
+        <div class="loop_container">
+          <span>Loop</span>
+          <mat-slide-toggle 
+              [checked]="fullStatus && fullStatus.loop"
+              (change)="loopNewValue( $event.checked )"
+            >
+          </mat-slide-toggle>
+        </div>
       </div>
 
       <div class="position-container" *ngIf="fullStatus != null && fullStatus.currentTrack != null" >

@@ -215,5 +215,14 @@ export class PlayerService {
     this.player.seek( timeSec );
   }
 
+  public async setLoop( loopActive: boolean ): Promise<void> {
+    let status = await this.player.updateStatus()
+    let actualLoop = status.loop;
+    
+    if( actualLoop != loopActive ) {
+      this.player.toggleLoop();
+    }
+  }
+
 
 }

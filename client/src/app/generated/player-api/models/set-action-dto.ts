@@ -4,4 +4,5 @@ export interface SetActionDto {
   track: number;
   volume: number;
   seekTo: number;
+  loop: boolean;
 }
