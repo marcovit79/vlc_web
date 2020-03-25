@@ -52,7 +52,7 @@ export class VlcPlayerComponent {
     }
 
     isPlayDisabled() {
-      return this.fullStatus == null || this.fullStatus.status === 'playing';
+      return ! this.hasTracks() || this.fullStatus.status === 'playing';
     }
 
     playClicked() {
@@ -80,6 +80,58 @@ export class VlcPlayerComponent {
       this.pause.emit();
     }
 
+    isPreviousTrackDisabled() {
+      return this.isStopDisabled();
+    }
+    
+    previousTrackClicked() {
+      const currentTrackTime = this.fullStatus.currentTrackTime;
+      const currentTrackIndex = this.currentTrackIndex();
+
+      let trackToStartIndex = (currentTrackTime > 10) ? currentTrackIndex : currentTrackIndex - 1 ;
+      let trackToStart = this.fullStatus.tracks[ trackToStartIndex ];
+      this.goToTrack( trackToStart );
+    }
+    
+    isNextTrackDisabled(){
+      const hasTracks = this.hasTracks();
+
+      let disabled: boolean;
+
+      if( hasTracks ) {
+        
+        if( this.hasCurrentTrack() ) {
+          let lastTrack = this.fullStatus.tracks[ this.fullStatus.tracks.length - 1 ];
+          let alreadyLast = this.fullStatus.currentTrack.id === lastTrack.id;
+          disabled = alreadyLast;
+        }
+        else {
+          // - ha tracce ma nessuna corrente quindi posso far partire la prima
+          disabled = false;
+        }
+      }
+      else {
+        disabled = true;
+      }
+
+      return disabled;
+    }
+
+    nextTrackClicked() {
+
+      if( this.hasCurrentTrack() ) {
+        const currentTrackIndex = this.currentTrackIndex();
+      
+        const nextTrack = this.fullStatus.tracks[ currentTrackIndex + 1 ];
+        this.goToTrack( nextTrack );
+      }
+      else {
+        this.playClicked();
+      }
+    }
+
+
+
     volumeChanged( volume: number ): void {
       this.volume.emit( volume );
     }
@@ -94,6 +146,22 @@ export class VlcPlayerComponent {
 
     loopNewValue( value: boolean ) {
       this.loop.emit( value );
+    }
+
+
+    private hasTracks(): boolean {
+      return this.fullStatus && this.fullStatus.tracks && this.fullStatus.tracks.length > 0;
+    }
+
+    private hasCurrentTrack(): boolean {
+      return this.fullStatus && this.fullStatus.currentTrack != null; 
+    }
+
+    private currentTrackIndex(): number {
+      const currentTrackIndex = this.fullStatus.tracks.findIndex( 
+        (t) => t.id === this.fullStatus.currentTrack.id 
+      );
+      return currentTrackIndex;
     }
 
 }

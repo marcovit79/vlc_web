@@ -25,6 +25,12 @@
         <button mat-flat-button [disabled]="isPauseDisabled()" (click)="pauseClicked()" >
           <mat-icon>pause</mat-icon>
         </button>
+        <button mat-flat-button [disabled]="isPreviousTrackDisabled()" (click)="previousTrackClicked()" >
+          <mat-icon>skip_previous</mat-icon>
+        </button>
+        <button mat-flat-button [disabled]="isNextTrackDisabled()" (click)="nextTrackClicked()" >
+          <mat-icon>skip_next</mat-icon>
+        </button>
         <div class="loop_container">
           <span>Loop</span>
           <mat-slide-toggle 
