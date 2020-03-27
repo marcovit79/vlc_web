@@ -1,8 +1,10 @@
-import { Input, Component, Output } from '@angular/core';
+import { Input, Component, Output, OnInit } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 
 import { PlayerInfo } from '../../model/PlayerInfo';
 import { Track } from '../../model/Track';
+import { timer, Observable, merge } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 
 @Component({

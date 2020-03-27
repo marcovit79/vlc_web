@@ -1,6 +1,6 @@
 import { Injectable, OnInit } from '@angular/core'
-import { Observable, timer, forkJoin } from 'rxjs';
-import { map, concatMap } from 'rxjs/operators';
+import { Observable, timer, forkJoin, merge, of } from 'rxjs';
+import { map, concatMap, delay } from 'rxjs/operators';
 
 import { ApiService } from '../../generated/player-api/services'
 import { StrictHttpResponse } from '../../generated/player-api/strict-http-response'
@@ -8,22 +8,75 @@ import { StrictHttpResponse } from '../../generated/player-api/strict-http-respo
 import { PlaylistFolder } from '../../model/PlayListFolder';
 import { PlayerInfo } from '../../model/PlayerInfo';
 import { Track } from '../../model/Track';
+import { SetActionDto } from 'src/app/generated/player-api/models';
 
 
 @Injectable()
-export class FullPlayerService implements OnInit {
+export class FullPlayerService {
 
   constructor( private client: ApiService ) { }
 
-  ngOnInit(): void {
-   
-  }
-
   getStatusStream(): Observable<PlayerInfo> {
-    return timer(0, 5 * 1000).pipe(
-        concatMap( i => this.getStatus() )
+    const statusUpdateClock = merge( 
+        timer(0, 1 * 1000),
+        this.newActionsAuditObservable().pipe(delay( 100 ))
+      );
+    
+    return statusUpdateClock.pipe(
+        concatMap( i => this.doComputeNewStatusTick(i))
     );
   }
+
+  private lastStatus: PlayerInfo = null;
+  
+  private doComputeNewStatusTick( i: number | string ): Observable<PlayerInfo> {
+    
+    const fullupdate = this.needFullUpdate( i );
+
+    let result: Observable<PlayerInfo>;
+    if( fullupdate || this.lastStatus == null ) {
+      result = this.getStatus();
+    }
+    else { 
+      // - If playing ...
+      if( this.lastStatus.status === 'playing' ) {
+        // ... update time only
+        let newStatus = { ... this.lastStatus };
+        newStatus.currentTrackTime += 1;
+        result = of( newStatus );
+      }
+      // - If stopped or paused ...
+      else {
+        // ... nothing to update
+        result = of( this.lastStatus );
+      }
+    }
+
+    // - Memorize last status
+    result = result.pipe( map( s => { this.lastStatus = s; return s; }));
+    return result;
+  }
+
+  private needFullUpdate( i: number | string ): boolean {
+    let fullupdate: boolean;
+
+    if( this.lastStatus != null && typeof i === 'number' ) {
+      fullupdate = ( i % 60 === 0);
+
+      if( ! fullupdate ) {
+        if( this.lastStatus.status === 'playing' ) { // - ensure full-update at the end of the track
+          if( this.lastStatus.currentTrack.duration - this.lastStatus.currentTrackTime < 2 ) {
+            fullupdate = true;
+          }
+        }
+      }
+    }
+    else { // - full-update after actions
+      fullupdate = true;
+    }
+    return fullupdate;
+  }
+
 
   getPlaylistFolders(): Observable<PlaylistFolder[]> {
       return timer(0, 60 * 1000).pipe(
@@ -56,38 +109,39 @@ export class FullPlayerService implements OnInit {
 
 
   setVolume( v: number): void {
-    this.client.playerControllerAction( { body: { action: "set", volume: v, track: null, seekTo: null, loop: null }} )
-        .subscribe( resp => {
-          console.log("setVolume( " + v + " ) => ", resp );
-        });
+    this.doSetAction( "setVolume", { volume: v });
   }
 
   seekTo( timeSec: number ): void {
-    this.client.playerControllerAction( { body: { action: "set", volume: null, track: null, seekTo: timeSec, loop: null }} )
-        .subscribe( resp => {
-          console.log("seekTo( " + timeSec + " ) => ", resp );
-        });
+    this.doSetAction( "seekTo", { seekTo: timeSec });
   } 
 
   changeTrack( t: Track ): void {
-    this.client.playerControllerAction( { body: { action: "set", volume: null, track: t.id, seekTo: null, loop: null }} )
-        .subscribe( resp => {
-          console.log("changeTrack( " + t.id + " ) => ", resp );
-        });
+    this.doSetAction( "changeTrack", { track: t.id });
   }
 
   setLoop( l: boolean ): void {
-    this.client.playerControllerAction( { body: { action: "set", volume: null, track: null, seekTo: null, loop: l }} )
-        .subscribe( resp => {
-          console.log("setLoop( " + l + " ) => ", resp );
-        });
+    this.doSetAction( "setLoop", { loop: l });
   }
 
     
   private doSimpleAction( action: "play" | "pause" | "resume" | "stop" ) {
     this.client.playerControllerAction( { body: { action: action }} )
         .subscribe( resp => {
+          this.actionFiredInternalAudit( action );
           console.log( action + "() => ", resp );
+        });
+  }
+
+  private doSetAction( name: string, notNullParams: Partial<SetActionDto> ) {
+    let params: SetActionDto = { action: "set", volume: null, track: null, seekTo: null, loop: null };
+    for( let k in notNullParams ) {
+      params[k] = notNullParams[k];
+    }
+    this.client.playerControllerAction( { body: params } )
+        .subscribe( resp => {
+          this.actionFiredInternalAudit( name );
+          console.log( name + "( " + JSON.stringify( notNullParams ) + " ) => ", resp );
         });
   }
 
@@ -141,5 +195,31 @@ export class FullPlayerService implements OnInit {
           })
       );
   }
+
+
+  private newActionsAuditObservable(): Observable<string> {
+      
+    let observable = Observable.create(observer => {
+      
+      this.actionObservers.push( observer );
+      
+      return () => {
+        const index = this.actionObservers.indexOf( observer );
+        if (index > -1) {
+          this.actionObservers.splice(index, 1);
+        }
+      }
+    });
+
+    return observable;
+  }
+
+  private actionFiredInternalAudit( actionName: string ) {
+    this.actionObservers.forEach( o => {
+      o.next( actionName );
+    })
+  }
+
+  private actionObservers: any[] = [];
   
 }
