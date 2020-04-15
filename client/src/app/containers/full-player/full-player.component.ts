@@ -34,7 +34,6 @@ export class FullPlayerComponent implements OnInit {
     }
 
     play(): void {
-      console.log("Play component called");
       this.svc.play();
     }
 

@@ -24,6 +24,7 @@ export interface PlayerInfo {
   tracks: Track[],
   currentTrack?: Track,
   currentTrackTime: number,
+  vlcConnected: boolean,
 }
 
 
@@ -61,36 +62,56 @@ export class PlayerService {
   }
 
   public async getAllInformations(): Promise<PlayerInfo> {
-    let [ vlcStatus, vlcPlaylistTree] = await this.player.updateAll();
+    let playerInfo: PlayerInfo;
+    try {
+      let [ vlcStatus, vlcPlaylistTree] = await this.player.updateAll();
+      playerInfo = {
+        status: vlcStatus.state,
+        loop: vlcStatus.loop,
+        random: vlcStatus.random,
+        repeat: vlcStatus.repeat,
+        volume: vlcStatus.volume,
+        currentPlaylist: null,
+        tracks: [],
+        currentTrack: null,
+        currentTrackTime: vlcStatus.time,
+        vlcConnected: true
+      }
+      
+      var vlcTracks = this.getTrackNodesFromVlcPlaylistTree( vlcPlaylistTree );
+      if( vlcTracks && vlcTracks.length > 0 ) {
 
-    let playerInfo: PlayerInfo = {
-      status: vlcStatus.state,
-      loop: vlcStatus.loop,
-      random: vlcStatus.random,
-      repeat: vlcStatus.repeat,
-      volume: vlcStatus.volume,
-      currentPlaylist: null,
-      tracks: [],
-      currentTrack: null,
-      currentTrackTime: vlcStatus.time,
+        playerInfo.tracks = vlcTracks.map( el => ({
+          id: parseInt( el.id ),
+          duration: el.duration,
+          name: el.name
+        }))
+
+        playerInfo.currentPlaylist = this.extractPlaylistName( vlcTracks[0].uri );
+      }
+      
+      const currentTrackId = vlcStatus.currentplid;
+      const currentTrack = playerInfo.tracks.find( el => el.id === currentTrackId );
+      playerInfo.currentTrack = currentTrack;
+
+      playerInfo.vlcConnected = this.player.isVlcConnected();
+    
     }
-
-    var vlcTracks = this.getTrackNodesFromVlcPlaylistTree( vlcPlaylistTree );
-    if( vlcTracks && vlcTracks.length > 0 ) {
-
-      playerInfo.tracks = vlcTracks.map( el => ({
-        id: parseInt( el.id ),
-        duration: el.duration,
-        name: el.name
-      }))
-
-      playerInfo.currentPlaylist = this.extractPlaylistName( vlcTracks[0].uri );
+    catch( err) {
+      playerInfo = {
+        status: 'stopped',
+        loop: false,
+        random: false,
+        repeat: false,
+        volume: 0,
+        currentPlaylist: null,
+        tracks: [],
+        currentTrack: null,
+        currentTrackTime: -1,
+        vlcConnected: false
+      }
     }
     
-    const currentTrackId = vlcStatus.currentplid;
-    const currentTrack = playerInfo.tracks.find( el => el.id === currentTrackId );
-    playerInfo.currentTrack = currentTrack;
-
     return playerInfo;
   }
 

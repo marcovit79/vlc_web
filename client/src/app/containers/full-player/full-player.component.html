@@ -3,6 +3,9 @@
   <mat-grid-tile>
     -->
 <div class="full-player" >
+  <h1 *ngIf="!playerStatus.vlcConnected" class="alert-banner">
+    Non connesso a VLC riavviarlo e ricaricare la pagina
+  </h1>
   <div class="folders-div">
     <playlists-folder [playlists]="playlists" (selected)="doPlaylistSelected($event)"></playlists-folder>
   </div>

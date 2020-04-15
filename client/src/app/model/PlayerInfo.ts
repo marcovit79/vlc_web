@@ -11,4 +11,5 @@ export class PlayerInfo {
   tracks: Track[];
   currentTrack?: Track;
   currentTrackTime: number;
+  vlcConnected: boolean
 }

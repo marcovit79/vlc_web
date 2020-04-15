@@ -30,7 +30,6 @@ export class FullPlayerService {
   private lastStatus: PlayerInfo = null;
   
   private doComputeNewStatusTick( i: number | string ): Observable<PlayerInfo> {
-    
     const fullupdate = this.needFullUpdate( i );
 
     let result: Observable<PlayerInfo>;
@@ -88,6 +87,7 @@ export class FullPlayerService {
     this.client.playerControllerPlay({ body: { playlist_name: name} })
         .subscribe( resp => {
             console.log("playFolder ( name:", name, " ) => ", resp );
+            this.actionFiredInternalAudit( "selectFolder" );
         });
   }
 

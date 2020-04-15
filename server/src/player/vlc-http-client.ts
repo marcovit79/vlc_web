@@ -279,6 +279,11 @@ export class VLC extends EventEmitter {
     }
   }
 
+  private _vlc_connected = false;
+  public isVlcConnected() {
+    return this._vlc_connected;
+  }
+
   private async _sendCommand<T = any>(
     scope: CommandScope,
     command?: string | null,
@@ -300,7 +305,12 @@ export class VLC extends EventEmitter {
         Authorization: this._authorization
       }
     })
+    .then( resp => {
+      this._vlc_connected = true;
+      return resp;
+    })
     .catch( err => {
+      this._vlc_connected = false;
       console.trace( "ERROR _sendCommand", err);
     });
   }
